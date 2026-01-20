@@ -1,0 +1,27 @@
+{
+  "functions": {
+    "api/app.py": {
+      "runtime": "python3.9",
+      "handler": "app",
+      "launcherType": "Python",
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/app.py"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+        }
+      ]
+    }
+  ]
+}
