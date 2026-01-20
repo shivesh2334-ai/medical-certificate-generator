@@ -510,4 +510,604 @@ HTML_TEMPLATE = '''
                                             <label for="colorBlind" class="ml-2 text-sm text-gray-700">Color Blindness Detected</label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input type="checkbox" id="hearingNormal" checked class="w-4
+                                            <input type="checkbox" id="hearingNormal" checked class="w-4 h-4 text-blue-600 rounded">
+                                            <label for="hearingNormal" class="ml-2 text-sm text-gray-700">Hearing Normal</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="fitToDrive" checked class="w-4 h-4 text-blue-600 rounded">
+                                            <label for="fitToDrive" class="ml-2 text-sm text-gray-700">Fit to Drive</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Physical Deformity (if any)</label>
+                                        <input type="text" id="physicalDeformity" placeholder="None" 
+                                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="generateCertificate('form1a')" 
+                                class="w-full mt-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity duration-300">
+                            <i class="fas fa-file-pdf mr-2"></i> Generate Form 1A
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultSection" class="hidden mt-8 fade-in">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-green-600 mb-4">
+                    <i class="fas fa-check-circle mr-2"></i>Certificate Generated Successfully!
+                </h2>
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div>
+                        <p class="text-gray-600">Your certificate is ready for download.</p>
+                        <p class="text-sm text-gray-500 mt-1">Includes doctor's signature section and medical stamp.</p>
+                    </div>
+                    <a id="downloadLink" class="px-8 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg font-bold hover:opacity-90 transition-opacity duration-300">
+                        <i class="fas fa-download mr-2"></i> Download PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-gray-600 text-sm">
+            <p>🏥 <strong>Medical Certificate Generator</strong> | Professional Medical Documentation System</p>
+            <p class="mt-2">⚠️ All certificates require doctor's signature and official seal to be valid</p>
+            <p class="mt-4 text-gray-500">© 2024 Medical Certificate Generator. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Set default dates
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            
+            document.getElementById('leaveFrom').value = today;
+            document.getElementById('leaveTo').value = nextWeek;
+            document.getElementById('sickLeaveFrom').value = today;
+            document.getElementById('sickLeaveTo').value = nextWeek;
+        });
+
+        function showTab(tabNumber) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById('tab' + tabNumber).classList.add('active');
+            document.querySelectorAll('.tab-button')[tabNumber - 1].classList.add('active');
+            
+            // Hide result section
+            document.getElementById('resultSection').classList.add('hidden');
+        }
+
+        async function generateCertificate(type) {
+            // Collect data
+            const data = {
+                clinic_name: document.getElementById('clinicName').value,
+                clinic_address: document.getElementById('clinicAddress').value,
+                clinic_phone: document.getElementById('clinicPhone').value,
+                clinic_reg: document.getElementById('clinicReg').value,
+                doctor_name: document.getElementById('doctorName').value,
+                doctor_qualification: document.getElementById('doctorQualification').value,
+                doctor_reg_no: document.getElementById('doctorRegNo').value,
+                doctor_specialty: document.getElementById('doctorSpecialty').value,
+                certificate_type: type
+            };
+
+            // Validate required fields
+            const requiredFields = [
+                data.clinic_name,
+                data.clinic_address,
+                data.clinic_phone,
+                data.doctor_name,
+                data.doctor_qualification
+            ];
+
+            if (requiredFields.some(field => !field)) {
+                alert('Please fill all required fields marked with *');
+                return;
+            }
+
+            // Add type-specific data
+            if (type === 'medical') {
+                data.patient_name = document.getElementById('patientName').value;
+                data.patient_age = document.getElementById('patientAge').value;
+                data.patient_gender = document.getElementById('patientGender').value;
+                data.patient_occupation = document.getElementById('patientOccupation').value;
+                data.medical_condition = document.getElementById('medicalCondition').value;
+                data.leave_from = document.getElementById('leaveFrom').value;
+                data.leave_to = document.getElementById('leaveTo').value;
+                data.additional_notes = document.getElementById('additionalNotes').value;
+
+                if (!data.patient_name || !data.medical_condition) {
+                    alert('Please fill patient name and medical condition');
+                    return;
+                }
+            } else if (type === 'fitness') {
+                data.applicant_name = document.getElementById('applicantName').value;
+                data.applicant_age = document.getElementById('applicantAge').value;
+                data.applicant_gender = document.getElementById('applicantGender').value;
+                data.position_applied = document.getElementById('positionApplied').value;
+                data.fitness_purpose = document.getElementById('fitnessPurpose').value;
+                data.medical_history = document.getElementById('medicalHistory').value;
+                data.fitness_remarks = document.getElementById('fitnessRemarks').value;
+
+                if (!data.applicant_name) {
+                    alert('Please fill applicant name');
+                    return;
+                }
+            } else if (type === 'sickleave') {
+                data.employee_name = document.getElementById('employeeName').value;
+                data.employee_company = document.getElementById('employeeCompany').value;
+                data.employee_id = document.getElementById('employeeId').value;
+                data.employee_dept = document.getElementById('employeeDept').value;
+                data.illness = document.getElementById('illness').value;
+                data.leave_from = document.getElementById('sickLeaveFrom').value;
+                data.leave_to = document.getElementById('sickLeaveTo').value;
+                data.rest_advised = document.getElementById('restAdvised').checked;
+
+                if (!data.employee_name || !data.employee_company || !data.illness) {
+                    alert('Please fill employee name, company, and illness details');
+                    return;
+                }
+            } else if (type === 'form1a') {
+                data.applicant_name = document.getElementById('rtoApplicantName').value;
+                data.applicant_age = document.getElementById('rtoApplicantAge').value;
+                data.applicant_gender = document.getElementById('rtoApplicantGender').value;
+                data.applicant_address = document.getElementById('rtoApplicantAddress').value;
+                data.license_type = document.getElementById('licenseType').value;
+                data.height = document.getElementById('height').value;
+                data.weight = document.getElementById('weight').value;
+                data.vision_right = document.getElementById('visionRight').value;
+                data.vision_left = document.getElementById('visionLeft').value;
+                data.color_blind = document.getElementById('colorBlind').checked;
+                data.hearing_normal = document.getElementById('hearingNormal').checked;
+                data.fit_to_drive = document.getElementById('fitToDrive').checked;
+                data.physical_deformity = document.getElementById('physicalDeformity').value;
+
+                if (!data.applicant_name || !data.applicant_address) {
+                    alert('Please fill applicant name and address');
+                    return;
+                }
+            }
+
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating...';
+            button.disabled = true;
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Show success section
+                        const resultSection = document.getElementById('resultSection');
+                        resultSection.classList.remove('hidden');
+                        resultSection.scrollIntoView({ behavior: 'smooth' });
+                        
+                        // Set download link
+                        const downloadLink = document.getElementById('downloadLink');
+                        downloadLink.href = result.download_url;
+                        downloadLink.download = result.filename;
+                        
+                        // Show success message
+                        document.querySelector('#resultSection h2').innerHTML = 
+                            `<i class="fas fa-check-circle mr-2"></i>${result.message}`;
+                    } else {
+                        alert('Error: ' + result.error);
+                    }
+                } else {
+                    alert('Server error. Please try again.');
+                }
+            } catch (error) {
+                alert('Network error. Please check your connection.');
+            } finally {
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
+'''
+
+# Create stamp image
+def create_stamp_image():
+    stamp_path = "static/stamp.png"
+    if not os.path.exists(stamp_path):
+        try:
+            width, height = 300, 120
+            image = Image.new('RGBA', (width, height), (255, 255, 255, 0))
+            draw = ImageDraw.Draw(image)
+            
+            # Draw border
+            draw.rectangle([(0, 0), (width-1, height-1)], 
+                         outline=(200, 0, 0, 255), width=2)
+            draw.rectangle([(10, 10), (width-11, height-11)], 
+                         outline=(200, 0, 0, 255), width=1)
+            
+            try:
+                # Try to load a font
+                font_large = ImageFont.truetype("arial.ttf", 20)
+                font_small = ImageFont.truetype("arial.ttf", 14)
+            except:
+                # Fallback to default font
+                font_large = ImageFont.load_default()
+                font_small = ImageFont.load_default()
+            
+            # Add text
+            draw.text((width/2, 30), "MEDICAL STAMP", 
+                     fill=(200, 0, 0, 255), font=font_large, anchor="mm")
+            draw.text((width/2, 60), "Authorized Signatory", 
+                     fill=(150, 0, 0, 255), font=font_small, anchor="mm")
+            draw.text((width/2, 85), "Clinic Seal", 
+                     fill=(150, 0, 0, 255), font=font_small, anchor="mm")
+            
+            image.save(stamp_path, "PNG")
+        except Exception as e:
+            print(f"Could not create stamp image: {str(e)}")
+    return True
+
+create_stamp_image()
+
+class MedicalPDF(FPDF):
+    """Custom PDF class for medical certificates"""
+    
+    def add_clinic_header(self, clinic_name, clinic_address, clinic_phone, clinic_reg):
+        self.set_font("Arial", "B", 20)
+        self.cell(0, 10, clinic_name, 0, 1, "C")
+        self.set_font("Arial", "", 10)
+        self.multi_cell(0, 5, clinic_address, 0, "C")
+        self.cell(0, 5, f"Phone: {clinic_phone} | Email: info@clinic.com", 0, 1, "C")
+        if clinic_reg:
+            self.cell(0, 5, f"Registration No: {clinic_reg}", 0, 1, "C")
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(10)
+    
+    def add_signature_section(self, doctor_name, doctor_qualification, doctor_reg_no, doctor_specialty):
+        self.ln(15)
+        self.set_font("Arial", "", 11)
+        self.cell(0, 6, "Place: _________________", 0, 1)
+        self.cell(0, 6, f"Date: {datetime.now().strftime('%d/%m/%Y')}", 0, 1)
+        self.ln(10)
+        
+        self.set_font("Arial", "B", 11)
+        self.cell(0, 6, f"Dr. {doctor_name}", 0, 1, "R")
+        self.set_font("Arial", "", 10)
+        self.cell(0, 5, doctor_qualification, 0, 1, "R")
+        if doctor_reg_no:
+            self.cell(0, 5, f"Reg. No: {doctor_reg_no}", 0, 1, "R")
+        if doctor_specialty:
+            self.cell(0, 5, doctor_specialty, 0, 1, "R")
+        
+        stamp_path = "static/stamp.png"
+        if os.path.exists(stamp_path):
+            try:
+                stamp_x = (210 - 40) / 2
+                stamp_y = self.get_y() + 5
+                self.image(stamp_path, x=stamp_x, y=stamp_y, w=40)
+                self.ln(25)
+            except Exception as e:
+                print(f"Error adding stamp: {e}")
+
+@app.route('/')
+def index():
+    return render_template_string(HTML_TEMPLATE)
+
+@app.route('/api/generate', methods=['POST'])
+def generate_certificate():
+    try:
+        data = request.json
+        
+        # Create PDF based on certificate type
+        if data['certificate_type'] == 'medical':
+            pdf = MedicalPDF()
+            pdf.add_page()
+            pdf.add_clinic_header(
+                data['clinic_name'], 
+                data['clinic_address'], 
+                data['clinic_phone'], 
+                data['clinic_reg']
+            )
+            
+            pdf.set_font("Arial", "B", 16)
+            pdf.cell(0, 10, "MEDICAL CERTIFICATE", 0, 1, "C")
+            pdf.ln(5)
+            
+            pdf.set_font("Arial", "", 11)
+            pdf.cell(0, 8, f"Date: {datetime.now().strftime('%d/%m/%Y')}", 0, 1)
+            pdf.ln(3)
+            
+            leave_from = datetime.strptime(data['leave_from'], '%Y-%m-%d').date()
+            leave_to = datetime.strptime(data['leave_to'], '%Y-%m-%d').date()
+            leave_days = (leave_to - leave_from).days + 1
+            
+            pdf.multi_cell(0, 6, f"This is to certify that I, {data['doctor_name']}, {data['doctor_qualification']}, "
+                               f"{'Registration No: ' + data['doctor_reg_no'] if data.get('doctor_reg_no') else ''}, "
+                               f"have examined {data['patient_name']}, {data['patient_gender']}, "
+                               f"Age: {data['patient_age']} years, {data.get('patient_occupation', 'Patient')} "
+                               f"on {datetime.now().strftime('%d/%m/%Y')}.")
+            
+            pdf.ln(5)
+            pdf.multi_cell(0, 6, f"After careful examination, I hereby certify that the patient is suffering from {data['medical_condition']}.")
+            
+            pdf.ln(5)
+            pdf.multi_cell(0, 6, f"I consider that a period of absence from duty from {leave_from.strftime('%d/%m/%Y')} "
+                               f"to {leave_to.strftime('%d/%m/%Y')} ({leave_days} day(s)) is absolutely necessary "
+                               f"for the restoration of his/her health.")
+            
+            if data.get('additional_notes'):
+                pdf.ln(5)
+                pdf.multi_cell(0, 6, f"Additional Recommendations: {data['additional_notes']}")
+            
+            pdf.add_signature_section(
+                data['doctor_name'], 
+                data['doctor_qualification'],
+                data.get('doctor_reg_no'), 
+                data.get('doctor_specialty')
+            )
+            
+            filename = f"Medical_Certificate_{data['patient_name'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            message = "Medical Certificate Generated Successfully!"
+            
+        elif data['certificate_type'] == 'fitness':
+            pdf = MedicalPDF()
+            pdf.add_page()
+            pdf.add_clinic_header(
+                data['clinic_name'], 
+                data['clinic_address'], 
+                data['clinic_phone'], 
+                data['clinic_reg']
+            )
+            
+            pdf.set_font("Arial", "B", 16)
+            pdf.cell(0, 10, "FITNESS CERTIFICATE", 0, 1, "C")
+            pdf.ln(5)
+            
+            pdf.set_font("Arial", "", 11)
+            pdf.cell(0, 8, f"Date: {datetime.now().strftime('%d/%m/%Y')}", 0, 1)
+            pdf.cell(0, 8, f"Certificate No: FC/{datetime.now().strftime('%Y%m%d%H%M%S')}", 0, 1)
+            pdf.ln(3)
+            
+            pdf.multi_cell(0, 6, f"This is to certify that I, {data['doctor_name']}, {data['doctor_qualification']}"
+                               f"{', Registration No: ' + data['doctor_reg_no'] if data.get('doctor_reg_no') else ''}, "
+                               f"have carefully examined {data['applicant_name']}, {data['applicant_gender']}, "
+                               f"Age: {data['applicant_age']} years, "
+                               f"{data.get('position_applied', 'Applicant')} "
+                               f"on {datetime.now().strftime('%d/%m/%Y')}.")
+            
+            pdf.ln(5)
+            pdf.multi_cell(0, 6, f"Purpose: {data['fitness_purpose']}")
+            
+            if data.get('medical_history'):
+                pdf.ln(3)
+                pdf.multi_cell(0, 6, f"Previous Medical History: {data['medical_history']}")
+            
+            pdf.ln(5)
+            pdf.set_font("Arial", "B", 11)
+            pdf.multi_cell(0, 6, "CERTIFICATION:")
+            pdf.set_font("Arial", "", 11)
+            pdf.multi_cell(0, 6, data['fitness_remarks'])
+            
+            pdf.ln(5)
+            pdf.set_font("Arial", "B", 11)
+            pdf.multi_cell(0, 6, "The applicant is MEDICALLY FIT for the above-mentioned purpose.")
+            
+            pdf.add_signature_section(
+                data['doctor_name'], 
+                data['doctor_qualification'],
+                data.get('doctor_reg_no'), 
+                data.get('doctor_specialty')
+            )
+            
+            filename = f"Fitness_Certificate_{data['applicant_name'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            message = "Fitness Certificate Generated Successfully!"
+            
+        elif data['certificate_type'] == 'sickleave':
+            pdf = MedicalPDF()
+            pdf.add_page()
+            pdf.add_clinic_header(
+                data['clinic_name'], 
+                data['clinic_address'], 
+                data['clinic_phone'], 
+                data['clinic_reg']
+            )
+            
+            pdf.set_font("Arial", "B", 16)
+            pdf.cell(0, 10, "SICK LEAVE CERTIFICATE", 0, 1, "C")
+            pdf.ln(5)
+            
+            pdf.set_font("Arial", "", 11)
+            pdf.cell(0, 8, f"Date: {datetime.now().strftime('%d/%m/%Y')}", 0, 1)
+            pdf.ln(3)
+            
+            pdf.cell(0, 6, "To,", 0, 1)
+            pdf.cell(0, 6, "The HR Manager / Concerned Authority", 0, 1)
+            pdf.cell(0, 6, data['employee_company'], 0, 1)
+            pdf.ln(5)
+            
+            pdf.cell(0, 6, "Subject: Medical Certificate for Sick Leave", 0, 1)
+            pdf.ln(3)
+            
+            pdf.cell(0, 6, "Dear Sir/Madam,", 0, 1)
+            pdf.ln(3)
+            
+            leave_from = datetime.strptime(data['leave_from'], '%Y-%m-%d').date()
+            leave_to = datetime.strptime(data['leave_to'], '%Y-%m-%d').date()
+            leave_days = (leave_to - leave_from).days + 1
+            
+            employee_info = f"{data['employee_name']}"
+            if data.get('employee_id'):
+                employee_info += f", Employee ID: {data['employee_id']}"
+            if data.get('employee_dept'):
+                employee_info += f", {data['employee_dept']}"
+            
+            pdf.multi_cell(0, 6, f"This is to certify that {employee_info} has been under my medical care.")
+            
+            pdf.ln(3)
+            pdf.multi_cell(0, 6, f"After thorough examination on {datetime.now().strftime('%d/%m/%Y')}, "
+                               f"I have diagnosed the patient with {data['illness']}.")
+            
+            pdf.ln(3)
+            pdf.multi_cell(0, 6, f"Due to this medical condition, I recommend sick leave from "
+                               f"{leave_from.strftime('%d/%m/%Y')} to {leave_to.strftime('%d/%m/%Y')} "
+                               f"({leave_days} day(s)).")
+            
+            if data.get('rest_advised'):
+                pdf.ln(3)
+                pdf.multi_cell(0, 6, "Complete bed rest and avoiding strenuous activities is advised during this period.")
+            
+            pdf.ln(5)
+            pdf.multi_cell(0, 6, "I request you to kindly grant the necessary leave for the recovery and restoration of health.")
+            
+            pdf.ln(10)
+            pdf.cell(0, 6, "Thanking you,", 0, 1)
+            pdf.ln(10)
+            
+            pdf.add_signature_section(
+                data['doctor_name'], 
+                data['doctor_qualification'],
+                data.get('doctor_reg_no'), 
+                data.get('doctor_specialty')
+            )
+            
+            filename = f"Sick_Leave_Certificate_{data['employee_name'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            message = "Sick Leave Certificate Generated Successfully!"
+            
+        elif data['certificate_type'] == 'form1a':
+            pdf = MedicalPDF()
+            pdf.add_page()
+            pdf.add_clinic_header(
+                data['clinic_name'], 
+                data['clinic_address'], 
+                data['clinic_phone'], 
+                data['clinic_reg']
+            )
+            
+            pdf.set_font("Arial", "B", 16)
+            pdf.cell(0, 10, "FORM 1A", 0, 1, "C")
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(0, 8, "Medical Certificate for Driving License", 0, 1, "C")
+            pdf.ln(5)
+            
+            pdf.set_font("Arial", "", 11)
+            pdf.cell(0, 8, f"Date of Examination: {datetime.now().strftime('%d/%m/%Y')}", 0, 1)
+            pdf.ln(3)
+            
+            pdf.set_font("Arial", "B", 12)
+            pdf.cell(0, 8, "APPLICANT DETAILS:", 0, 1)
+            pdf.set_font("Arial", "", 11)
+            pdf.cell(0, 6, f"Name: {data['applicant_name']}", 0, 1)
+            pdf.cell(0, 6, f"Age: {data.get('applicant_age', 'N/A')} years", 0, 1)
+            pdf.cell(0, 6, f"Gender: {data.get('applicant_gender', 'N/A')}", 0, 1)
+            pdf.multi_cell(0, 6, f"Address: {data['applicant_address']}")
+            pdf.cell(0, 6, f"License Type Applied: {data['license_type']}", 0, 1)
+            pdf.ln(5)
+            
+            pdf.set_font("Arial", "B", 12)
+            pdf.cell(0, 8, "MEDICAL EXAMINATION REPORT:", 0, 1)
+            pdf.set_font("Arial", "", 11)
+            
+            pdf.cell(0, 6, f"Height: {data['height']} cm", 0, 1)
+            pdf.cell(0, 6, f"Weight: {data['weight']} kg", 0, 1)
+            pdf.ln(2)
+            
+            pdf.set_font("Arial", "B", 11)
+            pdf.cell(0, 6, "Vision Test:", 0, 1)
+            pdf.set_font("Arial", "", 11)
+            pdf.cell(0, 6, f"   Right Eye: {data['vision_right']}", 0, 1)
+            pdf.cell(0, 6, f"   Left Eye: {data['vision_left']}", 0, 1)
+            pdf.cell(0, 6, f"   Color Blindness: {'Yes' if data.get('color_blind') else 'No'}", 0, 1)
+            pdf.ln(2)
+            
+            pdf.cell(0, 6, f"Hearing: {'Normal' if data.get('hearing_normal') else 'Impaired'}", 0, 1)
+            pdf.cell(0, 6, f"Physical Deformity: {data.get('physical_deformity', 'None')}", 0, 1)
+            pdf.ln(5)
+            
+            pdf.set_font("Arial", "B", 12)
+            pdf.cell(0, 8, "CERTIFICATION:", 0, 1)
+            pdf.set_font("Arial", "", 11)
+            
+            fit_status = "MEDICALLY FIT" if data.get('fit_to_drive') else "NOT FIT"
+            pdf.multi_cell(0, 6, f"I, {data['doctor_name']}, {data['doctor_qualification']}"
+                               f"{', Registration No: ' + data['doctor_reg_no'] if data.get('doctor_reg_no') else ''}, "
+                               f"hereby certify that I have personally examined the above-named applicant and "
+                               f"find him/her {fit_status} to drive a {data['license_type']}.")
+            
+            pdf.ln(5)
+            pdf.multi_cell(0, 6, "The applicant has been examined for any physical or mental disability that may "
+                               "interfere with safe driving.")
+            
+            pdf.add_signature_section(
+                data['doctor_name'], 
+                data['doctor_qualification'],
+                data.get('doctor_reg_no'), 
+                data.get('doctor_specialty')
+            )
+            
+            filename = f"Form_1A_{data['applicant_name'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            message = "Form 1A Generated Successfully!"
+        
+        # Generate PDF in memory
+        pdf_bytes = pdf.output(dest='S').encode('latin-1')
+        
+        # Save to temporary file
+        temp_dir = "tmp"
+        Path(temp_dir).mkdir(exist_ok=True)
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf', dir=temp_dir)
+        temp_file.write(pdf_bytes)
+        temp_file.close()
+        
+        return jsonify({
+            'success': True,
+            'message': message,
+            'filename': filename,
+            'download_url': f'/api/download/{os.path.basename(temp_file.name)}'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/download/<filename>')
+def download_file(filename):
+    file_path = os.path.join("tmp", filename)
+    if os.path.exists(file_path):
+        return send_file(
+            file_path,
+            as_attachment=True,
+            download_name=filename.replace('.tmp', '.pdf')
+        )
+    return "File not found", 404
+
+@app.route('/health')
+def health():
+    return jsonify({"status": "healthy"}), 200
+
+if __name__ == '__main__':
+    app.run(debug=True)
