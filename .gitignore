@@ -1,45 +1,26 @@
-# Python
+# Python cache files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-env/
+
+# Virtual Environment (Where you installed libraries locally)
 venv/
-ENV/
-env.bak/
-venv.bak/
+env/
+.env
 
-# Streamlit
-.streamlit/secrets.toml
+# Vercel local configuration (if you use Vercel CLI)
+.vercel
 
-# IDE
+# IDE settings (VS Code, PyCharm, Mac)
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# OS
 .DS_Store
-Thumbs.db
 
-# Certificates
-certificates/*.pdf
+# Generated Files & Temporary Folders
+# (We don't want to commit the PDFs you generate while testing)
+*.pdf
+tmp/
 
-# Logs
-logs/
-*.log
-
-# Temporary files
-*.tmp
-*.temp
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Vercel
-.vercel/
+# If you generated the stamp locally, don't push it
+# (The code generates it automatically on the server)
+static/stamp.png
